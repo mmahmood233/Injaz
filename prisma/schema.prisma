@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?
+  fullName  String
+  avatarUrl String?
+  role      String   @default("MEMBER")
+  bio       String?
+  joinedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberBooks  MemberBook[]
+  reviews      BookReview[]
+  comments     BookComment[]
+  borrowings   Borrowing[]
+  adminLogs    AdminLog[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  nameAr    String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  books Book[]
+}
+
+model Book {
+  id             String   @id @default(cuid())
+  titleAr        String
+  titleOriginal  String?
+  author         String
+  description    String?
+  coverUrl       String?
+  isbn           String?
+  source         String?
+  googleBooksId  String?
+  openLibraryId  String?
+  legalReadUrl   String?
+  previewUrl     String?
+  isPublicDomain Boolean  @default(false)
+  canReadOnline  Boolean  @default(false)
+  isPublished    Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  memberBooks MemberBook[]
+  reviews     BookReview[]
+  comments    BookComment[]
+  borrowings  Borrowing[]
+}
+
+model MemberBook {
+  id         String   @id @default(cuid())
+  memberId   String
+  bookId     String
+  status     String   @default("READ")
+  finishedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  member User @relation(fields: [memberId], references: [id])
+  book   Book @relation(fields: [bookId], references: [id])
+
+  @@unique([memberId, bookId])
+}
+
+model BookReview {
+  id         String   @id @default(cuid())
+  bookId     String
+  memberId   String
+  rating     Int?
+  reviewText String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  book   Book @relation(fields: [bookId], references: [id])
+  member User @relation(fields: [memberId], references: [id])
+}
+
+model BookComment {
+  id          String   @id @default(cuid())
+  bookId      String
+  memberId    String
+  commentText String
+  isApproved  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  book   Book @relation(fields: [bookId], references: [id])
+  member User @relation(fields: [memberId], references: [id])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  eventDate   DateTime
+  startTime   String?
+  endTime     String?
+  location    String?
+  imageUrl    String?
+  month       String?
+  status      String   @default("UPCOMING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model News {
+  id            String    @id @default(cuid())
+  title         String
+  content       String
+  coverImageUrl String?
+  type          String    @default("NEWS")
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Borrowing {
+  id         String    @id @default(cuid())
+  bookId     String
+  memberId   String
+  borrowedAt DateTime  @default(now())
+  dueDate    DateTime?
+  returnedAt DateTime?
+  status     String    @default("BORROWED")
+  notes      String?
+
+  book   Book @relation(fields: [bookId], references: [id])
+  member User @relation(fields: [memberId], references: [id])
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  title       String?
+  type        String
+  url         String
+  relatedType String?
+  relatedId   String?
+  createdAt   DateTime @default(now())
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String
+  createdAt DateTime @default(now())
+
+  admin User @relation(fields: [adminId], references: [id])
+}
