@@ -4,9 +4,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatArabicDate, newsTypeAr } from "@/lib/utils";
 import { AddNewsForm } from "@/components/admin/AddNewsForm";
+import { NewsActions } from "@/components/admin/NewsActions";
 
 export default async function AdminNewsPage() {
-  const news = await prisma.news.findMany({ orderBy: { createdAt: "desc" } });
+  const [news, members] = await Promise.all([
+    prisma.news.findMany({ orderBy: { createdAt: "desc" } }),
+    prisma.user.findMany({
+      where: { role: "MEMBER" },
+      select: { id: true, fullName: true },
+      orderBy: { fullName: "asc" },
+    }),
+  ]);
 
   return (
     <div className="p-8">
@@ -17,7 +25,7 @@ export default async function AdminNewsPage() {
           </h1>
           <p className="text-muted-foreground">{news.length} خبر</p>
         </div>
-        <AddNewsForm />
+        <AddNewsForm members={members} />
       </div>
 
       <div className="space-y-3">
@@ -38,6 +46,7 @@ export default async function AdminNewsPage() {
                   <Badge variant={item.isPublished ? "default" : "secondary"} className="text-xs">
                     {item.isPublished ? "منشور" : "مسودة"}
                   </Badge>
+                  <NewsActions newsId={item.id} isPublished={item.isPublished} />
                 </div>
               </div>
             </CardContent>

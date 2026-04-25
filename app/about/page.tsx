@@ -1,7 +1,11 @@
 import { BookOpen, Target, Heart, Users, Calendar, Star, Globe, Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { prisma } from "@/lib/prisma";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const rows = await prisma.siteSetting.findMany();
+  const s = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+
   const goals = [
     { icon: BookOpen, title: "تنمية عادة القراءة", desc: "نساعد الأعضاء على بناء عادة قراءة منتظمة ومستدامة من خلال البيئة الداعمة والبرامج المنظمة." },
     { icon: Users, title: "تشجيع الحوار الثقافي", desc: "نوفر مساحة آمنة لتبادل الأفكار والآراء حول الكتب والقضايا الثقافية والفكرية." },
@@ -29,7 +33,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* تعريف */}
+      {/* من نحن */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-10">
@@ -38,15 +42,9 @@ export default function AboutPage() {
             </h2>
           </div>
           <div className="prose prose-lg max-w-none text-muted-foreground leading-relaxed space-y-4 text-center">
-            <p className="text-lg">
-              نادي إنجاز للقراءة هو مبادرة ثقافية تابعة لإنجاز البحرين، تهدف إلى تعزيز ثقافة القراءة بين الشباب البحريني وتشجيعهم على بناء علاقة راسخة مع الكتاب والمعرفة.
-            </p>
-            <p>
-              يوفر النادي للأعضاء مساحة هادئة وملهمة للقراءة، ويجمع بينهم في بيئة ثقافية تفاعلية تسمح لهم بمناقشة الكتب، وتبادل الآراء، والمشاركة في فعاليات أدبية وفكرية متنوعة.
-            </p>
-            <p>
-              يقوم النادي على الجمع بين القراءة الفردية والأنشطة الجماعية، بحيث يتمكن العضو من الاستفادة من المكان في أي وقت مخصص للنادي، وفي الوقت نفسه يشارك أسبوعيًا في فعالية ثقافية تقام كل يوم أربعاء.
-            </p>
+            {s.about_p1 && <p className="text-lg">{s.about_p1}</p>}
+            {s.about_p2 && <p>{s.about_p2}</p>}
+            {s.about_p3 && <p>{s.about_p3}</p>}
           </div>
         </div>
       </section>
@@ -64,7 +62,7 @@ export default function AboutPage() {
                   رؤيتنا
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base">
-                  أن يكون النادي مساحة ثقافية عربية رائدة تنمي عادة القراءة، وتبني مجتمعًا قرائيًا واعيًا، يجمع بين المتعة، والمعرفة، والحوار والإبداع.
+                  {s.vision ?? ""}
                 </p>
               </CardContent>
             </Card>
@@ -78,7 +76,7 @@ export default function AboutPage() {
                   رسالتنا
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base">
-                  نشر ثقافة القراءة باللغة العربية من خلال توفير بيئة جاذبة للقراء، وتنظيم فعاليات أدبية وحوارية مبتكرة، وتمكين الأعضاء من التفاعل، والمشاركة، والقيادة، وصناعة أثر ثقافي مستدام داخل المجتمع.
+                  {s.mission ?? ""}
                 </p>
               </CardContent>
             </Card>
@@ -126,13 +124,13 @@ export default function AboutPage() {
             لقاء الأربعاء الثقافي
           </h2>
           <p className="text-white/70 leading-relaxed text-lg mb-6">
-            القلب النابض للنادي: كل أسبوع، كل أربعاء، يلتقي أعضاء النادي في جلسة ثقافية تفاعلية — نناقش فيها كتاباً، أو نستضيف فكرة، أو نتأمل معاً في موضوع يثري عقولنا وأرواحنا.
+            {s.wednesday_desc ?? ""}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
             {[
-              { label: "الوقت", value: "٦:٠٠ — ٨:٠٠ مساءً" },
-              { label: "الموعد", value: "كل يوم أربعاء" },
-              { label: "المكان", value: "مقر إنجاز البحرين" },
+              { label: "الوقت", value: s.wednesday_time ?? "" },
+              { label: "الموعد", value: s.wednesday_day ?? "" },
+              { label: "المكان", value: s.wednesday_location ?? "" },
             ].map((item) => (
               <div key={item.label} className="bg-white/10 rounded-xl p-4 border border-white/10">
                 <p className="text-white/50 text-xs mb-1">{item.label}</p>

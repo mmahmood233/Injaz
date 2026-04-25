@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, BookOpen, Calendar, Newspaper,
-  MessageSquare, BookMarked, LogOut
+  MessageSquare, BookMarked, LogOut, Settings
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,7 @@ const adminLinks = [
   { href: "/admin/news", label: "الأخبار", icon: Newspaper },
   { href: "/admin/comments", label: "التعليقات", icon: MessageSquare },
   { href: "/admin/borrowings", label: "الاستعارات", icon: BookMarked },
+  { href: "/admin/settings", label: "إعدادات الموقع", icon: Settings },
 ];
 
 export function AdminSidebar() {

@@ -32,3 +32,34 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ id: news.id });
 }
+
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
+  }
+
+  const { id, isPublished } = await req.json();
+  if (!id) return NextResponse.json({ error: "معرف مطلوب" }, { status: 400 });
+
+  await prisma.news.update({
+    where: { id },
+    data: { isPublished, publishedAt: isPublished ? new Date() : null },
+  });
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
+  }
+
+  const { id } = await req.json();
+  if (!id) return NextResponse.json({ error: "معرف مطلوب" }, { status: 400 });
+
+  await prisma.news.delete({ where: { id } });
+
+  return NextResponse.json({ ok: true });
+}

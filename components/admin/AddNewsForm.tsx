@@ -8,24 +8,47 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function AddNewsForm() {
+interface Member {
+  id: string;
+  fullName: string;
+}
+
+interface Props {
+  members: Member[];
+}
+
+export function AddNewsForm({ members }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [type, setType] = useState("NEWS");
   const [isPublished, setIsPublished] = useState(true);
+  const [selectedMemberId, setSelectedMemberId] = useState("");
+
+  function handleTypeChange(val: string) {
+    setType(val);
+    if (val !== "FEATURED_MEMBER") setSelectedMemberId("");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     const data = Object.fromEntries(new FormData(e.currentTarget));
+
+    // Auto-set title to member name when FEATURED_MEMBER and no custom title
+    const selectedMember = members.find((m) => m.id === selectedMemberId);
+    const title =
+      type === "FEATURED_MEMBER" && selectedMember && !String(data.title).trim()
+        ? `العضو المتميز: ${selectedMember.fullName}`
+        : data.title;
 
     const res = await fetch("/api/admin/news", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, type, isPublished }),
+      body: JSON.stringify({ ...data, title, type, isPublished, featuredMemberId: selectedMemberId || undefined }),
     });
 
     if (!res.ok) {
@@ -57,16 +80,8 @@ export function AddNewsForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label>عنوان الخبر *</Label>
-            <Input name="title" required placeholder="عنوان الخبر" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>المحتوى *</Label>
-            <Textarea name="content" required placeholder="اكتب الخبر هنا..." rows={5} />
-          </div>
-          <div className="space-y-1.5">
             <Label>نوع الخبر</Label>
-            <Select value={type} onValueChange={setType}>
+            <Select value={type} onValueChange={handleTypeChange}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -78,6 +93,50 @@ export function AddNewsForm() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Member picker — only when FEATURED_MEMBER */}
+          {type === "FEATURED_MEMBER" && (
+            <div className="space-y-1.5">
+              <Label>اختر العضو *</Label>
+              <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر عضواً..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.fullName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <Label>
+              عنوان الخبر
+              {type === "FEATURED_MEMBER" && selectedMemberId && (
+                <span className="text-xs text-muted-foreground mr-1">(اختياري — سيُملأ تلقائياً)</span>
+              )}
+              {type !== "FEATURED_MEMBER" && " *"}
+            </Label>
+            <Input
+              name="title"
+              required={type !== "FEATURED_MEMBER"}
+              placeholder={
+                type === "FEATURED_MEMBER" && selectedMemberId
+                  ? `العضو المتميز: ${members.find((m) => m.id === selectedMemberId)?.fullName ?? ""}`
+                  : "عنوان الخبر"
+              }
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>المحتوى *</Label>
+            <Textarea name="content" required placeholder="اكتب الخبر هنا..." rows={5} />
+          </div>
+
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -93,7 +152,11 @@ export function AddNewsForm() {
           {success && <p className="text-sm text-green-600">تم نشر الخبر!</p>}
 
           <div className="flex gap-3 pt-2">
-            <Button type="submit" disabled={loading} className="flex-1 injaz-gradient border-0 text-white">
+            <Button
+              type="submit"
+              disabled={loading || (type === "FEATURED_MEMBER" && !selectedMemberId)}
+              className="flex-1 injaz-gradient border-0 text-white"
+            >
               {loading ? "جاري الحفظ..." : "حفظ الخبر"}
             </Button>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
