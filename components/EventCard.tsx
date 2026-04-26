@@ -2,6 +2,7 @@ import { Calendar, Clock, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatArabicDate, eventStatusAr } from "@/lib/utils";
+import { GeneratedEventVisual } from "./GeneratedEventVisual";
 
 interface EventCardProps {
   title: string;
@@ -27,7 +28,8 @@ export function EventCard({
 
   return (
     <Card className={`card-hover border-border/60 overflow-hidden ${isPast ? "opacity-80" : ""}`}>
-      <div className={`h-1.5 ${isPast ? "bg-gray-300" : "injaz-gradient"}`} />
+      <GeneratedEventVisual title={title} className="h-40" />
+      <div className={`h-1 ${isPast ? "bg-gray-300" : "injaz-gradient"}`} />
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <h3 className="font-bold text-injaz-navy leading-snug" style={{ fontFamily: "Cairo, sans-serif" }}>

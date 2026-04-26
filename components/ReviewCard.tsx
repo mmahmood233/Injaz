@@ -1,14 +1,16 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Star, User } from "lucide-react";
+import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatArabicDate } from "@/lib/utils";
+import { ApiBookCover } from "./ApiBookCover";
+import { ArabicInitialAvatar } from "./ArabicInitialAvatar";
 
 interface ReviewCardProps {
   id: string;
   bookId: string;
   bookTitleAr: string;
   bookCoverUrl?: string | null;
+  bookIsbn?: string | null;
   memberName: string;
   memberAvatarUrl?: string | null;
   rating?: number | null;
@@ -20,8 +22,8 @@ export function ReviewCard({
   bookId,
   bookTitleAr,
   bookCoverUrl,
+  bookIsbn,
   memberName,
-  memberAvatarUrl,
   rating,
   reviewText,
   createdAt,
@@ -33,13 +35,14 @@ export function ReviewCard({
           {/* Book Cover */}
           <Link href={`/books/${bookId}`} className="flex-shrink-0">
             <div className="relative w-14 h-20 rounded-md overflow-hidden bg-gray-50">
-              {bookCoverUrl ? (
-                <Image src={bookCoverUrl} alt={bookTitleAr} fill className="object-contain" sizes="56px" />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Star className="w-5 h-5 text-injaz-blue/30" />
-                </div>
-              )}
+              <ApiBookCover
+                coverUrl={bookCoverUrl}
+                isbn={bookIsbn}
+                titleAr={bookTitleAr}
+                author=""
+                sizes="56px"
+                imageClassName="object-contain"
+              />
             </div>
           </Link>
 
@@ -68,13 +71,7 @@ export function ReviewCard({
 
             {/* Member */}
             <div className="flex items-center gap-2">
-              {memberAvatarUrl ? (
-                <Image src={memberAvatarUrl} alt={memberName} width={24} height={24} className="rounded-full object-cover" />
-              ) : (
-                <div className="w-6 h-6 rounded-full bg-injaz-blue/10 flex items-center justify-center">
-                  <User className="w-3 h-3 text-injaz-blue" />
-                </div>
-              )}
+              <ArabicInitialAvatar name={memberName} size="xs" />
               <span className="text-xs font-medium text-injaz-navy">{memberName}</span>
               <span className="text-xs text-muted-foreground">·</span>
               <span className="text-xs text-muted-foreground">{formatArabicDate(createdAt)}</span>

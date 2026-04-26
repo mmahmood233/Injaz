@@ -4,6 +4,7 @@ import { Newspaper, Award, Star, Megaphone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatArabicDate, newsTypeAr, truncate } from "@/lib/utils";
+import { GeneratedNewsVisual } from "./GeneratedNewsVisual";
 
 interface NewsCardProps {
   id: string;
@@ -35,7 +36,7 @@ export function NewsCard({ id, title, content, coverImageUrl, type, publishedAt 
   return (
     <Card className="group card-hover border-border/60 overflow-hidden h-full flex flex-col">
       {/* Image */}
-      {coverImageUrl && (
+      {coverImageUrl ? (
         <div className="relative h-44 overflow-hidden bg-injaz-blue/5">
           <Image
             src={coverImageUrl}
@@ -45,11 +46,8 @@ export function NewsCard({ id, title, content, coverImageUrl, type, publishedAt 
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
-      )}
-      {!coverImageUrl && (
-        <div className="h-44 bg-gradient-to-br from-injaz-blue/5 to-injaz-blue/15 flex items-center justify-center">
-          <Icon className="w-12 h-12 text-injaz-blue/20" />
-        </div>
+      ) : (
+        <GeneratedNewsVisual type={type} title={title} className="h-44" />
       )}
 
       <CardContent className="p-5 flex flex-col flex-1">

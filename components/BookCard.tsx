@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { BookOpen, ExternalLink, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { truncate } from "@/lib/utils";
+import { ApiBookCover } from "./ApiBookCover";
 
 interface BookCardProps {
   id: string;
@@ -12,6 +12,7 @@ interface BookCardProps {
   author: string;
   description?: string | null;
   coverUrl?: string | null;
+  isbn?: string | null;
   categoryNameAr?: string | null;
   canReadOnline?: boolean;
   previewUrl?: string | null;
@@ -24,6 +25,7 @@ export function BookCard({
   author,
   description,
   coverUrl,
+  isbn,
   categoryNameAr,
   canReadOnline,
   previewUrl,
@@ -33,20 +35,14 @@ export function BookCard({
     <Card className="group card-hover overflow-hidden border-border/60 h-full flex flex-col">
       {/* Cover */}
       <div className="relative h-56 bg-gray-50 overflow-hidden flex items-center justify-center">
-        {coverUrl ? (
-          <Image
-            src={coverUrl}
-            alt={titleAr}
-            fill
-            className="object-contain group-hover:scale-105 transition-transform duration-300 p-1"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-2 w-full h-full bg-gradient-to-br from-injaz-blue/5 to-injaz-blue/15">
-            <BookOpen className="w-12 h-12 text-injaz-blue/30" />
-            <p className="text-xs text-injaz-blue/40 text-center px-4 font-medium">{titleAr}</p>
-          </div>
-        )}
+        <ApiBookCover
+          coverUrl={coverUrl}
+          isbn={isbn}
+          titleAr={titleAr}
+          author={author}
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          imageClassName="object-contain group-hover:scale-105 transition-transform duration-300 p-1"
+        />
         {/* Badges */}
         <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
           {canReadOnline && (

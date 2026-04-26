@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { User, BookOpen, Star, Calendar, BookMarked } from "lucide-react";
+import { BookOpen, Star, Calendar, BookMarked } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatArabicDate, readingStatusAr } from "@/lib/utils";
+import { ArabicInitialAvatar } from "@/components/ArabicInitialAvatar";
+import { ApiBookCover } from "@/components/ApiBookCover";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -42,14 +44,8 @@ export default async function MemberProfilePage({ params }: Props) {
       <section className="injaz-gradient py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 max-w-3xl mx-auto">
-            <div className="w-28 h-28 rounded-full bg-white/20 border-4 border-white/30 flex items-center justify-center flex-shrink-0 shadow-xl">
-              {member.avatarUrl ? (
-                <Image src={member.avatarUrl} alt={member.fullName} fill className="object-cover rounded-full" />
-              ) : (
-                <span className="text-white text-4xl font-bold" style={{ fontFamily: "Cairo, sans-serif" }}>
-                  {member.fullName.charAt(0)}
-                </span>
-              )}
+            <div className="rounded-full border-4 border-white/30 shadow-xl flex-shrink-0 overflow-hidden">
+              <ArabicInitialAvatar name={member.fullName} size="xl" />
             </div>
             <div className="text-center md:text-right">
               <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "Cairo, sans-serif" }}>
@@ -178,13 +174,13 @@ function BookListItem({ mb }: { mb: { book: { id: string; titleAr: string; autho
       <Card className="card-hover border-border/60 overflow-hidden">
         <CardContent className="p-3 flex gap-3">
           <div className="relative w-12 h-16 rounded bg-gray-50 flex-shrink-0 overflow-hidden">
-            {mb.book.coverUrl ? (
-              <Image src={mb.book.coverUrl} alt={mb.book.titleAr} fill className="object-contain" sizes="48px" />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-injaz-blue/30" />
-              </div>
-            )}
+            <ApiBookCover
+              coverUrl={mb.book.coverUrl}
+              titleAr={mb.book.titleAr}
+              author={mb.book.author}
+              sizes="48px"
+              imageClassName="object-contain"
+            />
           </div>
           <div className="flex-1 min-w-0">
             <h4 className="font-bold text-injaz-navy text-xs line-clamp-2 mb-1">{mb.book.titleAr}</h4>

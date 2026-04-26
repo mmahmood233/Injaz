@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, ExternalLink, Star, User, MessageSquare, Eye } from "lucide-react";
+import { BookOpen, ExternalLink, Star, MessageSquare, Eye } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatArabicDate } from "@/lib/utils";
 import { CommentForm } from "@/components/CommentForm";
+import { ArabicInitialAvatar } from "@/components/ArabicInitialAvatar";
+import { ApiBookCover } from "@/components/ApiBookCover";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -56,14 +58,14 @@ export default async function BookDetailPage({ params }: Props) {
             <div className="sticky top-24">
               {/* Cover */}
               <div className="relative w-full aspect-[3/4] max-w-xs mx-auto rounded-2xl overflow-hidden shadow-2xl bg-gray-50 mb-6 flex items-center justify-center">
-                {book.coverUrl ? (
-                  <Image src={book.coverUrl} alt={book.titleAr} fill className="object-contain p-1" sizes="300px" />
-                ) : (
-                  <div className="absolute inset-0 injaz-gradient flex flex-col items-center justify-center gap-3 p-6">
-                    <BookOpen className="w-16 h-16 text-white/60" />
-                    <p className="text-white/80 text-center font-medium text-sm leading-relaxed">{book.titleAr}</p>
-                  </div>
-                )}
+                <ApiBookCover
+                  coverUrl={book.coverUrl}
+                  isbn={book.isbn}
+                  titleAr={book.titleAr}
+                  author={book.author}
+                  sizes="300px"
+                  imageClassName="object-contain p-1"
+                />
               </div>
 
               {/* Action Buttons */}
@@ -100,9 +102,11 @@ export default async function BookDetailPage({ params }: Props) {
                   <div className="flex flex-wrap gap-2">
                     {book.memberBooks.map((mb) => (
                       <Link key={mb.id} href={`/members/${mb.memberId}`} title={mb.member.fullName}>
-                        <div className="w-9 h-9 rounded-full bg-injaz-blue/10 flex items-center justify-center text-injaz-blue text-xs font-bold hover:bg-injaz-blue hover:text-white transition-colors border border-injaz-blue/20">
-                          {mb.member.fullName.charAt(0)}
-                        </div>
+                        <ArabicInitialAvatar
+                          name={mb.member.fullName}
+                          size="sm"
+                          className="hover:opacity-80 transition-opacity border border-white/20"
+                        />
                       </Link>
                     ))}
                   </div>
@@ -179,9 +183,7 @@ export default async function BookDetailPage({ params }: Props) {
                     <Card key={review.id} className="border-border/60">
                       <CardContent className="p-5">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-9 h-9 rounded-full bg-injaz-blue/10 flex items-center justify-center flex-shrink-0">
-                            <User className="w-4 h-4 text-injaz-blue" />
-                          </div>
+                          <ArabicInitialAvatar name={review.member.fullName} size="sm" />
                           <div>
                             <p className="font-semibold text-sm text-injaz-navy">{review.member.fullName}</p>
                             <p className="text-xs text-muted-foreground">{formatArabicDate(review.createdAt)}</p>
@@ -228,13 +230,7 @@ export default async function BookDetailPage({ params }: Props) {
                     <Card key={comment.id} className="border-border/60">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-2">
-                          <div className="w-8 h-8 rounded-full bg-injaz-blue/10 flex items-center justify-center flex-shrink-0">
-                            {comment.member.avatarUrl ? (
-                              <Image src={comment.member.avatarUrl} alt={comment.member.fullName} width={32} height={32} className="rounded-full object-cover" />
-                            ) : (
-                              <span className="text-xs font-bold text-injaz-blue">{comment.member.fullName.charAt(0)}</span>
-                            )}
-                          </div>
+                          <ArabicInitialAvatar name={comment.member.fullName} size="xs" />
                           <div>
                             <p className="font-semibold text-xs text-injaz-navy">{comment.member.fullName}</p>
                             <p className="text-xs text-muted-foreground">{formatArabicDate(comment.createdAt)}</p>
