@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { Users, Plus } from "lucide-react";
+import { Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatArabicDate } from "@/lib/utils";
 import { AddMemberForm } from "@/components/admin/AddMemberForm";
+import { AdminDeleteButton } from "@/components/admin/AdminDeleteButton";
 
 export default async function AdminMembersPage() {
   const members = await prisma.user.findMany({
@@ -51,6 +52,11 @@ export default async function AdminMembersPage() {
                   <span className="text-xs text-muted-foreground">
                     {formatArabicDate(member.createdAt)}
                   </span>
+                  <AdminDeleteButton
+                    endpoint="/api/admin/members"
+                    id={member.id}
+                    confirmText={`هل أنت متأكد من حذف العضو "${member.fullName}"؟ سيتم حذف جميع بياناته.`}
+                  />
                 </div>
               </div>
             </CardContent>

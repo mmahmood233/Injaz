@@ -30,3 +30,30 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ id: user.id });
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
+  }
+
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "معرّف العضو مطلوب" }, { status: 400 });
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) return NextResponse.json({ error: "العضو غير موجود" }, { status: 404 });
+  if (user.role === "ADMIN") return NextResponse.json({ error: "لا يمكن حذف المشرف" }, { status: 403 });
+
+  await prisma.memberBook.deleteMany({ where: { memberId: id } });
+  await prisma.bookReview.deleteMany({ where: { memberId: id } });
+  await prisma.bookComment.deleteMany({ where: { memberId: id } });
+  await prisma.borrowing.deleteMany({ where: { memberId: id } });
+  await prisma.adminLog.deleteMany({ where: { adminId: id } });
+  await prisma.user.delete({ where: { id } });
+
+  await prisma.adminLog.create({
+    data: { adminId: session.user.id, action: `حذف عضو: ${user.fullName}` },
+  });
+
+  return NextResponse.json({ success: true });
+}

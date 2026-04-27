@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatArabicDate, eventStatusAr } from "@/lib/utils";
 import { AddEventForm } from "@/components/admin/AddEventForm";
+import { AdminDeleteButton } from "@/components/admin/AdminDeleteButton";
 
 export default async function AdminEventsPage() {
   const events = await prisma.event.findMany({ orderBy: { eventDate: "desc" } });
@@ -44,6 +45,11 @@ export default async function AdminEventsPage() {
                   >
                     {eventStatusAr(event.status)}
                   </Badge>
+                  <AdminDeleteButton
+                    endpoint="/api/admin/events"
+                    id={event.id}
+                    confirmText={`هل أنت متأكد من حذف الفعالية "${event.title}"؟`}
+                  />
                 </div>
               </div>
             </CardContent>

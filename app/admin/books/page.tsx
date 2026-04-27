@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { BookOpen, Plus } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookImportPanel } from "@/components/admin/BookImportPanel";
+import { AdminDeleteButton } from "@/components/admin/AdminDeleteButton";
 
 export default async function AdminBooksPage() {
   const [books, categories] = await Promise.all([
@@ -52,6 +53,11 @@ export default async function AdminBooksPage() {
                   <Badge variant={book.isPublished ? "default" : "secondary"} className="text-xs">
                     {book.isPublished ? "منشور" : "مسودة"}
                   </Badge>
+                  <AdminDeleteButton
+                    endpoint="/api/admin/books"
+                    id={book.id}
+                    confirmText={`هل أنت متأكد من حذف "${book.titleAr}"؟ سيتم حذف جميع المراجعات والتعليقات المرتبطة به.`}
+                  />
                 </div>
               </div>
             </CardContent>

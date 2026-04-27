@@ -63,3 +63,28 @@ export async function PUT(req: NextRequest) {
 
   return NextResponse.json({ id: book.id });
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
+  }
+
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "معرّف الكتاب مطلوب" }, { status: 400 });
+
+  const book = await prisma.book.findUnique({ where: { id } });
+  if (!book) return NextResponse.json({ error: "الكتاب غير موجود" }, { status: 404 });
+
+  await prisma.memberBook.deleteMany({ where: { bookId: id } });
+  await prisma.bookReview.deleteMany({ where: { bookId: id } });
+  await prisma.bookComment.deleteMany({ where: { bookId: id } });
+  await prisma.borrowing.deleteMany({ where: { bookId: id } });
+  await prisma.book.delete({ where: { id } });
+
+  await prisma.adminLog.create({
+    data: { adminId: session.user.id, action: `حذف كتاب: ${book.titleAr}` },
+  });
+
+  return NextResponse.json({ success: true });
+}
